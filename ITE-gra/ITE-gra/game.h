@@ -111,7 +111,7 @@ private:
     void rayCastingFunc();
     void drawDebugSprites();
     void drawSpriteInWorld(const Sprite& sprite);
-    void drawSpriteInWorld(const Monster& monster);
+    void drawSpriteInWorld(const Monster & monster);
     void drawBulletSprite(const Projectile& projectile);
     void movePlayer();
     void updateGameObjects();
@@ -119,12 +119,14 @@ private:
     void setWeapon(int id);
     void itemPickup(int ycoords, int xcoords);
     void playSound(const std::string& id);
-
+    
+    
 public:
     Game();
     ~Game();
 
     bool initialize();
+    int menu();
     void loadLevel(int levelIdx);
     void run();
     void cleanup();

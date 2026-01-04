@@ -10,6 +10,13 @@
 #include "sprite.h"
 #include "level.h"
 #include "keystate.h"
+#include "button.h"
+#include "settings.h"
+
+Settings settings;
+
+
+
 
 Game::Game() : currentLevel(0), weaponSprite(nullptr), isShooting(false),
 equippedWeapon(1), ammo(100), rocketammo(10),
@@ -24,8 +31,12 @@ rocketlauncherTexture(nullptr), skeletonTexture(nullptr),
 ammoTexture(nullptr), rocketammoTexture(nullptr), bonesTexture(nullptr),
 cloudTexture(nullptr) {
 
-    screen.width = 800;
-    screen.height = 600;
+    settings.loadAll();
+
+    SetMasterVolume(settings.volume);
+
+    screen.width = settings.resolution.x;
+    screen.height = settings.resolution.y;
     screen.scale = 4;
     screen.halfWidth = screen.width / 2;
     screen.halfHeight = screen.height / 2;
@@ -40,14 +51,30 @@ cloudTexture(nullptr) {
 
     rayCasting.precision = 64;
 
-    player.fov = 60;
+    player.fov = settings.fov;
     player.halfFov = player.fov / 2;
     player.x = 2;
     player.y = 2;
     player.angle = 0;
     player.radius = 20;
-    player.health = 100;
-    player.maxHealth = 100;
+   
+    switch (settings.difficulty)
+    {
+    case 0:
+        player.health = 200;
+        player.maxHealth = 200;
+        break;
+    case 1:
+        player.health = 100;
+        player.maxHealth = 100;
+        break;
+    case 2:
+        player.health = 50;
+        player.maxHealth = 50;
+        break;
+    }
+
+
     player.speed.movement = 0.08;
     player.speed.rotation = 1.5;
 
@@ -94,6 +121,68 @@ cloudTexture(nullptr) {
 
 Game::~Game() {
     cleanup();
+}
+
+int Game::menu() {
+   
+
+    Vector2 startButPos;
+    startButPos.x = screen.halfWidth-(int)(screen.halfWidth*0.2);
+    startButPos.y = (int)(screen.height * 0.25-screen.halfHeight*0.35);
+
+    Vector2 mapButPos;
+    mapButPos.x = screen.halfWidth - (int)(screen.halfWidth * 0.2);
+    mapButPos.y = (int)(screen.height * 0.5 - screen.halfHeight * 0.35);
+
+    Vector2 settingsButPos;
+    settingsButPos.x = screen.halfWidth - (int)(screen.halfWidth * 0.2);
+    settingsButPos.y = (int)(screen.height * 0.75 - screen.halfHeight * 0.35);
+
+    Vector2 exitButPos;
+    exitButPos.x = screen.halfWidth - (int)(screen.halfWidth * 0.2);
+    exitButPos.y = screen.height - (int)screen.halfHeight * 0.35;
+
+    Button startButton("Resources/Textures/ButtonStart.png", startButPos,settings.scale);
+    Button mapBuildButton("Resources/Textures/ButtonMapBuilder.png", mapButPos,settings.scale);
+    Button settingsButton("Resources/Textures/ButtonSettings.png", settingsButPos, settings.scale);
+    Button exitButton("Resources/Textures/ButtonExit.png", exitButPos, settings.scale);
+
+  
+    Vector2 mousePos;
+    bool isLPress;
+
+        while (!WindowShouldClose()) {
+
+        mousePos = GetMousePosition();
+        isLPress = IsMouseButtonReleased(MOUSE_BUTTON_LEFT);
+
+        BeginDrawing();
+        ClearBackground(BLACK);
+        startButton.Draw();
+        mapBuildButton.Draw();
+        settingsButton.Draw();
+        exitButton.Draw();
+            if (startButton.isPressed(mousePos,isLPress))
+            {
+                return 1;
+            }
+            if (mapBuildButton.isPressed(mousePos, isLPress))
+            {
+                return 2;
+            }
+            if (settingsButton.isPressed(mousePos, isLPress))
+            {
+                return 3;
+            }
+            if (exitButton.isPressed(mousePos, isLPress))
+            {
+                return 4;
+            }
+       
+        EndDrawing();
+     }
+        return 0;
+   
 }
 
 bool Game::initialize() {
@@ -276,7 +365,6 @@ void Game::loadLevel(int levelIdx) {
     monsterDefeated = 0;
     pickupTotal = 0;
     pickupCollected = 0;
-    player.health = 100;
 
     std::vector<std::vector<int>>& map = levels[levelIdx].map;
     int mapy = (int)map.size();
@@ -337,10 +425,14 @@ void Game::loadLevel(int levelIdx) {
 void Game::run() {
     loadLevel(0);
 
+    
+
     RenderTexture2D renderTex = LoadRenderTexture(projection.width, projection.height);
     Texture2D projectionTexture = LoadTextureFromImage(projection.buffer);
+  
+        while (!WindowShouldClose()) {
+       
 
-    while (!WindowShouldClose()) {
         double currentTime = GetTime();
         render.lastUpdate = currentTime;
 
@@ -421,6 +513,7 @@ void Game::run() {
         DrawText(ammoText.c_str(), 5 * screen.scale, 45 * screen.scale, 5 * screen.scale, WHITE);
 
         EndDrawing();
+        
     }
 
     UnloadTexture(projectionTexture);
