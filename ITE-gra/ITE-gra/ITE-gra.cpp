@@ -1,11 +1,12 @@
 ﻿#include "game.h"
 #include <iostream>
 #include "settings.h"
+#include "editor.h"
 
 int main() {
     Game game;
     Settings settings;
-
+    Editor editor;
 
     int menuState;
     bool keepRunning = true;
@@ -22,7 +23,7 @@ int main() {
             game.run();
             break;
         case 2: // Map editor
-            std::cout<<"Settings"<<std::endl;
+            editor.open();
             break;
         case 3: //Settings
             settings.open();
