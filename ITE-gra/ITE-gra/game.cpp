@@ -204,29 +204,29 @@ bool Game::initialize() {
 GameTexture* Game::loadTexture(const std::string& path, const std::string& name) {
     std::string textureName = name.empty() ? path : name;
 
-    if (textureMap.find(textureName) != textureMap.end()) {
+    if (textureMap.find(textureName) != textureMap.end())
         return textureMap[textureName];
-    }
+
+    Image img = LoadImage(path.c_str());
+    if (img.data == nullptr)
+        return nullptr;
 
     GameTexture* tex = new GameTexture();
-    tex->texture = LoadTexture(path.c_str());
+    tex->texture = LoadTextureFromImage(img);
+    tex->width = img.width;
+    tex->height = img.height;
+    tex->pixels = LoadImageColors(img);
 
-    if (tex->texture.id == 0) {
-        delete tex;
-        return nullptr;
-    }
+    UnloadImage(img);
 
-    tex->width = tex->texture.width;
-    tex->height = tex->texture.height;
     textureMap[textureName] = tex;
     return tex;
 }
 
+
 bool Game::loadAllTextures() {
     wallTexture = loadTexture("Resources/Textures/texture.png", "wall");
-    floorTexture = loadTexture("Resources/Textures/test_floor.png", "floor");
     skyTexture = loadTexture("Resources/Textures/night.png", "sky");
-    cloudTexture = loadTexture("Resources/Textures/cloud.png", "cloud");
 
     knifeTexture = loadTexture("Resources/Textures/knife.png", "knife");
     gunTexture = loadTexture("Resources/Textures/gun.png", "gun");
@@ -290,31 +290,20 @@ void Game::setWeaponTexture(int weaponId) {
 }
 
 void Game::drawTexturedWall(int rayCount, int wallHeight, double rayX, double rayY) {
-    if (!wallTexture || wallTexture->texture.id == 0) {
-        Color wallColor = { 200, 200, 200, 255 };
-        int startY = projection.halfHeight - wallHeight;
-        if (startY < 0) startY = 0;
-        int endY = projection.halfHeight + wallHeight;
-        if (endY > projection.height) endY = projection.height;
-
-        for (int y = startY; y < endY; y++) {
-            drawPixel(rayCount, y, wallColor);
-        }
-        return;
-    }
+    if (!wallTexture || !wallTexture->pixels) return;
 
     double hitX = rayX - floor(rayX);
     double hitY = rayY - floor(rayY);
 
     int texX;
-    if (fabs(hitX - 0.0) < 0.01 || fabs(hitX - 1.0) < 0.01) {
-        texX = (int)(hitY * wallTexture->getWidth()) % wallTexture->getWidth();
-    }
-    else {
-        texX = (int)(hitX * wallTexture->getWidth()) % wallTexture->getWidth();
-    }
+    if (hitX < 0.01 || hitX > 0.99)
+        texX = (int)(hitY * wallTexture->width);
+    else
+        texX = (int)(hitX * wallTexture->width);
 
-    float texStep = (float)wallTexture->getHeight() / (wallHeight * 2);
+    texX = std::clamp(texX, 0, wallTexture->width - 1);
+
+    float texStep = (float)wallTexture->height / (wallHeight * 2);
     float texPos = 0;
 
     int startY = projection.halfHeight - wallHeight;
@@ -323,20 +312,14 @@ void Game::drawTexturedWall(int rayCount, int wallHeight, double rayX, double ra
     if (endY > projection.height) endY = projection.height;
 
     for (int y = startY; y < endY; y++) {
-        int texY = (int)texPos % wallTexture->getHeight();
+        int texY = (int)texPos & (wallTexture->height - 1);
+        int index = texY * wallTexture->width + texX;
 
-        Color color;
-        if ((texX + texY) % 2 == 0) {
-            color = Color{ 180, 180, 180, 255 };
-        }
-        else {
-            color = Color{ 120, 120, 120, 255 };
-        }
-
-        drawPixel(rayCount, y, color);
+        drawPixel(rayCount, y, wallTexture->pixels[index]);
         texPos += texStep;
     }
 }
+
 
 void Game::loadLevel(int levelIdx) {
     if (levelIdx < 0 || levelIdx >= levels.size()) return;
@@ -626,7 +609,9 @@ void Game::rayCastingFunc() {
         int wallHeight = (int)(projectionHalfHeight / distance);
 
         for (int y = 0; y < projectionHalfHeight - wallHeight; y++) {
-            drawPixel(rayCount, y, Color{ 100, 100, 100, 255 });
+            int skyX = (int)((rayAngle / player.fov) * skyTexture->width) % skyTexture->width;
+            int skyY = (int)((float)y / projection.halfHeight * skyTexture->height);
+            drawPixel(rayCount, y, skyTexture->pixels[skyY * skyTexture->width + skyX]);
         }
 
         drawTexturedWall(rayCount, wallHeight, rayX, rayY);
