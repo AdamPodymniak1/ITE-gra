@@ -17,6 +17,7 @@ struct Monster {
     int damage;
     double lastAttack;
     double attackCooldown;
+    double moveSpeed;
 
     Monster() : x(0), y(0), health(100), isDead(false), width(512), height(512),
         texture(nullptr), damage(1), lastAttack(0), attackCooldown(1.0) {

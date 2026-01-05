@@ -26,15 +26,14 @@ using json = nlohmann::json;
 Game::Game() : currentLevel(0), weaponSprite(nullptr), isShooting(false),
 equippedWeapon(1), ammo(100), rocketammo(10),
 lastShot(0), shootCooldown(0.6), bulletHitboxRadius(0.25),
-bulletRange(400), knifeRange(1), bulletStartDistance(0.5),
-monsterMoveSpeed(0.02), activationDistance(1.0),
+bulletRange(400), knifeRange(1), bulletStartDistance(0.5), activationDistance(1.0),
 monsterTotal(0), monsterDefeated(0), pickupTotal(0), pickupCollected(0),
 wallTexture(nullptr), floorTexture(nullptr), skyTexture(nullptr),
 bulletTexture(nullptr), rocketTexture(nullptr), inboundrocketTexture(nullptr),
 knifeTexture(nullptr), gunTexture(nullptr), machinegunTexture(nullptr),
 rocketlauncherTexture(nullptr), skeletonTexture(nullptr),
 ammoTexture(nullptr), rocketammoTexture(nullptr), bonesTexture(nullptr),
-cloudTexture(nullptr) {
+cloudTexture(nullptr), demonTexture(nullptr), wolfTexture(nullptr) {
 
     srand((unsigned int)time(nullptr));
 
@@ -356,7 +355,6 @@ void Game::loadLevel(int levelIdx) {
     std::vector<std::vector<int>>& map = levels[levelIdx].map;
     int mapy = (int)map.size();
     int mapx = (int)map[0].size();
-    monsterMoveSpeed = levels[levelIdx].monstermovespeed;
 
     for (int i = 0; i < mapy; i++) {
         for (int j = 0; j < mapx; j++) {
@@ -412,12 +410,13 @@ void Game::spawnWave()
             wolf.audio = "bigcat";
             wolf.x = enemySpawnPoints[i].x;
             wolf.y = enemySpawnPoints[i].y;
-            wolf.health = 10 + currentWave * 10;
+            wolf.health = 10;
             wolf.isDead = false;
             wolf.width = 512;
             wolf.height = 512;
             wolf.damage = 10 + currentWave;
             wolf.attackCooldown = 0.5;
+            wolf.moveSpeed = 0.06;
             wolf.texture = wolfTexture;
 
             monsters.push_back(wolf);
@@ -431,12 +430,13 @@ void Game::spawnWave()
             demon.audio = "demon";
             demon.x = enemySpawnPoints[i].x;
             demon.y = enemySpawnPoints[i].y;
-            demon.health = 200 + currentWave * 50;
+            demon.health = 200 + currentWave * 20;
             demon.isDead = false;
             demon.width = 512;
             demon.height = 512;
             demon.damage = 10 + currentWave;
             demon.attackCooldown = 2.0;
+            demon.moveSpeed = 0.02;
             demon.texture = demonTexture;
 
             monsters.push_back(demon);
@@ -450,12 +450,13 @@ void Game::spawnWave()
             skeleton.audio = "skeleton";
             skeleton.x = enemySpawnPoints[i].x;
             skeleton.y = enemySpawnPoints[i].y;
-            skeleton.health = 100 + currentWave * 20;
+            skeleton.health = 100 + currentWave * 5;
             skeleton.isDead = false;
             skeleton.width = 512;
             skeleton.height = 512;
             skeleton.damage = 5 + currentWave / 2;
             skeleton.attackCooldown = 1.0;
+            skeleton.moveSpeed = 0.04;
             skeleton.texture = skeletonTexture;
 
             monsters.push_back(skeleton);
@@ -1195,8 +1196,8 @@ void Game::updateGameObjects() {
             if (distSq > 0.25 && distSq < 100) {
                 double distance = sqrt(distSq);
                 double invDist = 1.0 / distance;
-                double dirX = dx * invDist * monsterMoveSpeed;
-                double dirY = dy * invDist * monsterMoveSpeed;
+                double dirX = dx * invDist * monster.moveSpeed;
+                double dirY = dy * invDist * monster.moveSpeed;
 
                 double newX = monster.x + dirX;
                 double newY = monster.y + dirY;

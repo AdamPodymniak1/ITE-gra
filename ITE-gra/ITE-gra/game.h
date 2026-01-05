@@ -30,7 +30,6 @@ private:
     double bulletRange;
     double knifeRange;
     double bulletStartDistance;
-    double monsterMoveSpeed;
     double activationDistance;
     int monsterTotal;
     int monsterDefeated;
