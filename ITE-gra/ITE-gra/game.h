@@ -41,6 +41,14 @@ private:
     double waveDelay = 5.0;
     std::vector<Vector2> enemySpawnPoints;
     int enemiesPerWave = 3;
+    int points = 0;
+    bool rocketUnlocked = false;
+    bool dashUnlocked = false;
+    double dashCooldown = 1.5;
+    double lastDash = 0;
+    bool upgradeRocketBought = false;
+    bool upgradeSpeedBought = false;
+    bool upgradeDashBought = false;
 
     bool gameOver = false;
 
@@ -118,7 +126,6 @@ private:
     void drawTexturedWall(int rayCount, int wallHeight, double rayX, double rayY);
     bool isVisibleToPlayer(const Monster& monster);
     void rayCastingFunc();
-    void drawDebugSprites();
     void drawSpriteInWorld(const Sprite& sprite);
     void drawSpriteInWorld(const Monster & monster);
     void drawBulletSprite(const Projectile& projectile);
@@ -129,8 +136,10 @@ private:
     void itemPickup(int ycoords, int xcoords);
     void playSound(const std::string& id);
     void spawnWave();
-    void drawPickupInWorld(const Sprite& sprite);
-    
+    void explodeRocket(Projectile& projectile);
+    void awardPoints(const Monster& monster);
+    void openUpgradeMenu();
+    void DrawCrossedText(const char* text, int x, int y, int fontSize, Color color);
     
 public:
     Game();

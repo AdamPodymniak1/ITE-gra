@@ -10,6 +10,7 @@ public:
     double x, y;
     double angle;
     double speed;
+    bool exploded = false;
     std::string owner;
     std::string type;
     GameTexture* texture;

@@ -95,6 +95,8 @@ cloudTexture(nullptr), demonTexture(nullptr), wolfTexture(nullptr) {
     keys["four"] = KeyState(KEY_FOUR);
     keys["strafeleft"] = KeyState(KEY_A);
     keys["straferight"] = KeyState(KEY_D);
+    keys["upgrade"] = KeyState(KEY_TAB);
+    keys["dash"] = KeyState(KEY_LEFT_SHIFT);
 
     std::ifstream file("Resources/Levels/level1.json");
     if (!file.is_open()) {
@@ -270,6 +272,7 @@ bool Game::loadAllSounds() {
     audioCache["demon-pain-2"] = LoadSound("Resources/Sounds/demon-pain-2.mp3");
     audioCache["demon-pain-3"] = LoadSound("Resources/Sounds/demon-pain-3.mp3");
     audioCache["demon-death"] = LoadSound("Resources/Sounds/demon-death.mp3");
+    audioCache["dash"] = LoadSound("Resources/Sounds/dash.mp3");
 
     return true;
 }
@@ -400,16 +403,32 @@ void Game::spawnWave()
 
     int spawnCount = enemiesPerWave + currentWave;
 
-    for (int i = 0; i < spawnCount && i < enemySpawnPoints.size();) {
+    std::vector<int> spawnIndices(enemySpawnPoints.size());
+    std::iota(spawnIndices.begin(), spawnIndices.end(), 0);
+
+    for (int i = spawnIndices.size() - 1; i > 0; --i)
+    {
+        int j = rand() % (i + 1);
+        std::swap(spawnIndices[i], spawnIndices[j]);
+    }
+
+    int usedTiles = 0;
+
+    for (int i = 0;
+        i < spawnCount && usedTiles < spawnIndices.size();)
+    {
         int roll = rand() % 3;
-        if (roll == 0 && spawnCount - i >= 3) {
+        int spawnIndex = spawnIndices[usedTiles];
+
+        if (roll == 0 && spawnCount - i >= 3 && usedTiles + 3 <= spawnIndices.size())
+        {
             Monster wolf;
             wolf.id = "monster_" + std::to_string(i);
             wolf.type = "wolf";
             wolf.skin = "wolf";
             wolf.audio = "bigcat";
-            wolf.x = enemySpawnPoints[i].x;
-            wolf.y = enemySpawnPoints[i].y;
+            wolf.x = enemySpawnPoints[spawnIndex].x;
+            wolf.y = enemySpawnPoints[spawnIndex].y;
             wolf.health = 10;
             wolf.isDead = false;
             wolf.width = 512;
@@ -420,16 +439,18 @@ void Game::spawnWave()
             wolf.texture = wolfTexture;
 
             monsters.push_back(wolf);
+            usedTiles += 3;
             i += 3;
         }
-        else if (roll == 1 && spawnCount - i >= 5) {
+        else if (roll == 1 && spawnCount - i >= 5 && usedTiles + 5 <= spawnIndices.size())
+        {
             Monster demon;
             demon.id = "monster_" + std::to_string(i);
             demon.type = "demon";
             demon.skin = "demon";
             demon.audio = "demon";
-            demon.x = enemySpawnPoints[i].x;
-            demon.y = enemySpawnPoints[i].y;
+            demon.x = enemySpawnPoints[spawnIndex].x;
+            demon.y = enemySpawnPoints[spawnIndex].y;
             demon.health = 200 + currentWave * 20;
             demon.isDead = false;
             demon.width = 512;
@@ -440,16 +461,18 @@ void Game::spawnWave()
             demon.texture = demonTexture;
 
             monsters.push_back(demon);
+            usedTiles += 5;
             i += 5;
         }
-        else {
+        else
+        {
             Monster skeleton;
             skeleton.id = "monster_" + std::to_string(i);
             skeleton.type = "skeleton";
             skeleton.skin = "skeleton";
             skeleton.audio = "skeleton";
-            skeleton.x = enemySpawnPoints[i].x;
-            skeleton.y = enemySpawnPoints[i].y;
+            skeleton.x = enemySpawnPoints[spawnIndex].x;
+            skeleton.y = enemySpawnPoints[spawnIndex].y;
             skeleton.health = 100 + currentWave * 5;
             skeleton.isDead = false;
             skeleton.width = 512;
@@ -460,14 +483,15 @@ void Game::spawnWave()
             skeleton.texture = skeletonTexture;
 
             monsters.push_back(skeleton);
+            usedTiles += 1;
             i += 1;
         }
+
         monsterTotal++;
     }
 
     waveActive = true;
 }
-
 
 void Game::run() {
     loadLevel(0);
@@ -600,6 +624,23 @@ void Game::run() {
         DrawText(healthText.c_str(), 5 * screen.scale, 5 * screen.scale, 5 * screen.scale, WHITE);
         DrawText(("Weapon: " + weaponText).c_str(), 5 * screen.scale, 25 * screen.scale, 5 * screen.scale, WHITE);
         DrawText(ammoText.c_str(), 5 * screen.scale, 45 * screen.scale, 5 * screen.scale, WHITE);
+        DrawText(("Points: " + std::to_string(points)).c_str(), 5 * screen.scale, 65 * screen.scale, 5 * screen.scale, YELLOW);
+        if (dashUnlocked) {
+            float barWidth = 40.0f * screen.scale;
+            float barHeight = 4.0f * screen.scale;
+            float x = 5.0f * screen.scale;
+            float y = 85.0f * screen.scale;
+
+            double elapsed = GetTime() - lastDash;
+            double ratio = elapsed / dashCooldown;
+            if (ratio > 1.0) ratio = 1.0;
+
+            DrawRectangle((int)x,(int)y,(int)barWidth,(int)barHeight,DARKGRAY);
+
+            DrawRectangle((int)x,(int)y,(int)(barWidth * ratio),(int)barHeight,LIGHTGRAY);
+
+            DrawRectangleLines((int)x,(int)y,(int)barWidth,(int)barHeight,BLACK);
+        }
 
         EndDrawing();
         
@@ -1019,10 +1060,36 @@ void Game::movePlayer() {
         shootCooldown = 0.4;
         setWeaponTexture(3);
     }
-    if (keys["four"].active) {
+    if (keys["four"].active && rocketUnlocked) {
         equippedWeapon = 4;
         shootCooldown = 1.2;
         setWeaponTexture(5);
+    }
+    if (keys["upgrade"].active) {
+        openUpgradeMenu();
+    }
+    if (keys["dash"].active && dashUnlocked) {
+        double now = GetTime();
+        if (now - lastDash >= dashCooldown) {
+            playSound("dash");
+            double dashDist = 2;
+
+            double dx = cos(degreeToRadians(player.angle)) * dashDist;
+            double dy = sin(degreeToRadians(player.angle)) * dashDist;
+
+            int mapX = (int)(player.x + dx);
+            int mapY = (int)(player.y + dy);
+
+            if (mapY >= 0 && mapY < mapHeight &&
+                mapX >= 0 && mapX < mapWidth &&
+                map[mapY][mapX] != 2)
+            {
+                player.x += dx;
+                player.y += dy;
+            }
+
+            lastDash = now;
+        }
     }
 }
 
@@ -1057,6 +1124,23 @@ void Game::handleShooting() {
             playSound("rocketlaunch");
             rocketammo--;
             projTexture = rocketTexture;
+            double recoilX = -cos(degreeToRadians(player.angle)) * 0.35;
+            double recoilY = -sin(degreeToRadians(player.angle)) * 0.35;
+
+            std::vector<std::vector<int>>& map = levels[currentLevel].map;
+            int mapHeight = (int)map.size();
+            int mapWidth = (int)map[0].size();
+
+            int mapX = (int)(player.x + recoilX);
+            int mapY = (int)(player.y + recoilY);
+
+            if (mapY >= 0 && mapY < mapHeight &&
+                mapX >= 0 && mapX < mapWidth &&
+                map[mapY][mapX] != 2)
+            {
+                player.x += recoilX;
+                player.y += recoilY;
+            }
         }
         else if (equippedWeapon == 2) {
             type = "pistolBullet";
@@ -1101,14 +1185,13 @@ void Game::updateGameObjects() {
         int mapX = (int)projectile.x;
         int mapY = (int)projectile.y;
 
-        if (mapY >= 0 && mapY < mapHeight && mapX >= 0 && mapX < mapWidth) {
-            if (map[mapY][mapX] == 2) {
-                if (projectile.type == "rocket") {
-                    playSound("explosion");
-                }
+        if (map[mapY][mapX] == 2) {
+            if (projectile.type == "rocket") {
+                explodeRocket(projectile);
                 projectilesToRemove.push_back(i);
-                continue;
             }
+            projectilesToRemove.push_back(i);
+            continue;
         }
 
         if (projectile.owner == "player") {
@@ -1121,7 +1204,8 @@ void Game::updateGameObjects() {
 
                     if (distanceSq < bulletHitboxRadius * bulletHitboxRadius) {
                         if (projectile.type == "rocket") {
-                            monster.health -= 200;
+                            explodeRocket(projectile);
+                            projectilesToRemove.push_back(i);
                         }
                         else if (projectile.type == "pistolBullet") {
                             monster.health -= 50;
@@ -1132,7 +1216,8 @@ void Game::updateGameObjects() {
 
                         if (monster.health <= 0) {
                             monster.isDead = true;
-                            monsterDefeated++;
+                            if(projectile.type != "rocket") monsterDefeated++;
+                            awardPoints(monster);
                             playSound(monster.audio + "-death");
                             int roll = rand() % 4;
                             if (roll == 0 || roll == 1) {
@@ -1276,4 +1361,108 @@ void Game::playSound(const std::string& id) {
     if (it != audioCache.end()) {
         PlaySound(it->second);
     }
+}
+
+void Game::explodeRocket(Projectile& projectile)
+{
+    if (projectile.exploded) return;
+    projectile.exploded = true;
+
+    playSound("explosion");
+
+    for (Monster& monster : monsters) {
+        if (monster.isDead) continue;
+
+        double dx = monster.x - projectile.x;
+        double dy = monster.y - projectile.y;
+        double distSq = dx * dx + dy * dy;
+
+        if (distSq <= 1.5*1.5) {
+            monster.health -= 200;
+
+            if (monster.health <= 0) {
+                monster.isDead = true;
+                monsterDefeated++;
+                awardPoints(monster);
+                playSound(monster.audio + "-death");
+            }
+        }
+    }
+}
+
+
+void Game::awardPoints(const Monster& monster) {
+    if (monster.type == "skeleton") points += 10;
+    else if (monster.type == "wolf") points += 20;
+    else if (monster.type == "demon") points += 50;
+}
+
+void Game::openUpgradeMenu() {
+    while (!WindowShouldClose()) {
+        BeginDrawing();
+        ClearBackground(BLACK);
+
+        DrawText("UPGRADES", screen.width / 2 - 80, 50, 30, WHITE);
+
+        DrawText("1 - Heal +50 HP (30 pts)", 100, 150, 20, WHITE);
+
+        if (upgradeRocketBought) {
+            DrawCrossedText("2 - Unlock Rocket Launcher (100 pts)", 100, 180, 20, GRAY);
+        }
+        else {
+            DrawText("2 - Unlock Rocket Launcher (100 pts)", 100, 180, 20, WHITE);
+        }
+
+        if (upgradeSpeedBought) {
+            DrawCrossedText("3 - Increase Speed (50 pts)", 100, 210, 20, GRAY);
+        }
+        else {
+            DrawText("3 - Increase Speed (50 pts)", 100, 210, 20, WHITE);
+        }
+
+        if (upgradeDashBought) {
+            DrawCrossedText("4 - Unlock Dash (75 pts)", 100, 240, 20, GRAY);
+        }
+        else {
+            DrawText("4 - Unlock Dash (75 pts)", 100, 240, 20, WHITE);
+        }
+
+
+        if (IsKeyPressed(KEY_ONE) && points >= 30) {
+            player.health = std::min(player.health + 50, player.maxHealth);
+            points -= 30;
+            playSound("pickup");
+        }
+
+        if (IsKeyPressed(KEY_TWO) && !upgradeRocketBought && points >= 100) {
+            rocketUnlocked = true;
+            upgradeRocketBought = true;
+            points -= 100;
+            playSound("pickup");
+        }
+
+        if (IsKeyPressed(KEY_THREE) && !upgradeSpeedBought && points >= 50) {
+            player.speed.movement += 0.02;
+            upgradeSpeedBought = true;
+            points -= 50;
+            playSound("pickup");
+        }
+
+        if (IsKeyPressed(KEY_FOUR) && !upgradeDashBought && points >= 75) {
+            dashUnlocked = true;
+            upgradeDashBought = true;
+            points -= 75;
+            playSound("pickup");
+        }
+        if (IsKeyPressed(KEY_ESCAPE)) break;
+
+        EndDrawing();
+    }
+}
+
+void Game::DrawCrossedText(const char* text, int x, int y, int fontSize, Color color)
+{
+    DrawText(text, x, y, fontSize, color);
+    int width = MeasureText(text, fontSize);
+    DrawLine(x, y + fontSize / 2, x + width, y + fontSize / 2, RED);
 }
