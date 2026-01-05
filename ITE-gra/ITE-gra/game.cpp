@@ -241,6 +241,8 @@ bool Game::loadAllTextures() {
     inboundrocketTexture = loadTexture("Resources/Textures/inboundrocket.png", "inboundrocket");
 
     skeletonTexture = loadTexture("Resources/Textures/skeleton.png", "skeleton");
+    wolfTexture = loadTexture("Resources/Textures/wolf.png", "wolf");
+    demonTexture = loadTexture("Resources/Textures/demon.png", "demon");
     ammoTexture = loadTexture("Resources/Textures/ammo.png", "ammo");
     rocketammoTexture = loadTexture("Resources/Textures/rocketammo.png", "rocketammo");
     bonesTexture = loadTexture("Resources/Textures/bones.png", "bones");
@@ -261,6 +263,14 @@ bool Game::loadAllSounds() {
     audioCache["skeleton-pain-2"] = LoadSound("Resources/Sounds/skeleton-pain-2.mp3");
     audioCache["skeleton-pain-3"] = LoadSound("Resources/Sounds/skeleton-pain-3.mp3");
     audioCache["skeleton-death"] = LoadSound("Resources/Sounds/skeleton-death.mp3");
+    audioCache["bigcat-pain-1"] = LoadSound("Resources/Sounds/bigcat-pain-1.mp3");
+    audioCache["bigcat-pain-2"] = LoadSound("Resources/Sounds/bigcat-pain-2.mp3");
+    audioCache["bigcat-pain-3"] = LoadSound("Resources/Sounds/bigcat-pain-3.mp3");
+    audioCache["bigcat-death"] = LoadSound("Resources/Sounds/bigcat-death.mp3");
+    audioCache["demon-pain-1"] = LoadSound("Resources/Sounds/demon-pain-1.mp3");
+    audioCache["demon-pain-2"] = LoadSound("Resources/Sounds/demon-pain-2.mp3");
+    audioCache["demon-pain-3"] = LoadSound("Resources/Sounds/demon-pain-3.mp3");
+    audioCache["demon-death"] = LoadSound("Resources/Sounds/demon-death.mp3");
 
     return true;
 }
@@ -376,7 +386,7 @@ void Game::loadLevel(int levelIdx) {
             }
             case 5:
             {
-                skeletonSpawnPoints.push_back(Vector2{ (float)j, (float)i });
+                enemySpawnPoints.push_back(Vector2{ (float)j, (float)i });
                 break;
             }
             }
@@ -390,25 +400,67 @@ void Game::spawnWave()
     monsterDefeated = 0;
     monsterTotal = 0;
 
-    int spawnCount = skeletonsPerWave + currentWave;
+    int spawnCount = enemiesPerWave + currentWave;
 
-    for (int i = 0; i < spawnCount && i < skeletonSpawnPoints.size(); i++) {
-        Monster skeleton;
-        skeleton.id = "monster_" + std::to_string(i);
-        skeleton.type = "skeleton";
-        skeleton.skin = "skeleton";
-        skeleton.audio = "skeleton";
-        skeleton.x = skeletonSpawnPoints[i].x;
-        skeleton.y = skeletonSpawnPoints[i].y;
-        skeleton.health = 100 + currentWave * 20;
-        skeleton.isDead = false;
-        skeleton.width = 512;
-        skeleton.height = 512;
-        skeleton.damage = 5 + currentWave / 2;
-        skeleton.attackCooldown = 1.0;
-        skeleton.texture = skeletonTexture;
+    for (int i = 0; i < spawnCount && i < enemySpawnPoints.size();) {
+        int roll = rand() % 3;
+        if (roll == 0 && spawnCount - i >= 3) {
+            Monster wolf;
+            wolf.id = "monster_" + std::to_string(i);
+            wolf.type = "wolf";
+            wolf.skin = "wolf";
+            wolf.audio = "bigcat";
+            wolf.x = enemySpawnPoints[i].x;
+            wolf.y = enemySpawnPoints[i].y;
+            wolf.health = 10 + currentWave * 10;
+            wolf.isDead = false;
+            wolf.width = 512;
+            wolf.height = 512;
+            wolf.damage = 10 + currentWave;
+            wolf.attackCooldown = 0.5;
+            wolf.texture = wolfTexture;
 
-        monsters.push_back(skeleton);
+            monsters.push_back(wolf);
+            i += 3;
+        }
+        else if (roll == 1 && spawnCount - i >= 5) {
+            Monster demon;
+            demon.id = "monster_" + std::to_string(i);
+            demon.type = "demon";
+            demon.skin = "demon";
+            demon.audio = "demon";
+            demon.x = enemySpawnPoints[i].x;
+            demon.y = enemySpawnPoints[i].y;
+            demon.health = 200 + currentWave * 50;
+            demon.isDead = false;
+            demon.width = 512;
+            demon.height = 512;
+            demon.damage = 10 + currentWave;
+            demon.attackCooldown = 2.0;
+            demon.texture = demonTexture;
+
+            monsters.push_back(demon);
+            i += 5;
+        }
+        else {
+            Monster skeleton;
+            skeleton.id = "monster_" + std::to_string(i);
+            skeleton.type = "skeleton";
+            skeleton.skin = "skeleton";
+            skeleton.audio = "skeleton";
+            skeleton.x = enemySpawnPoints[i].x;
+            skeleton.y = enemySpawnPoints[i].y;
+            skeleton.health = 100 + currentWave * 20;
+            skeleton.isDead = false;
+            skeleton.width = 512;
+            skeleton.height = 512;
+            skeleton.damage = 5 + currentWave / 2;
+            skeleton.attackCooldown = 1.0;
+            skeleton.texture = skeletonTexture;
+
+            monsters.push_back(skeleton);
+            i += 1;
+        }
         monsterTotal++;
     }
 
@@ -1071,7 +1123,7 @@ void Game::updateGameObjects() {
                         if (monster.health <= 0) {
                             monster.isDead = true;
                             monsterDefeated++;
-                            playSound("skeleton-death");
+                            playSound(monster.audio + "-death");
                             int roll = rand() % 4;
                             if (roll == 0 || roll == 1) {
                                 Sprite ammoSprite("ammo", monster.x, monster.y, 100, 81);
@@ -1086,9 +1138,9 @@ void Game::updateGameObjects() {
                         }
                         else {
                             int rnd = rand() % 3;
-                            if (rnd == 0) playSound("skeleton-pain-1");
-                            else if (rnd == 1) playSound("skeleton-pain-2");
-                            else playSound("skeleton-pain-3");
+                            if (rnd == 0) playSound(monster.audio + "-pain-1");
+                            else if (rnd == 1) playSound(monster.audio + "-pain-2");
+                            else playSound(monster.audio + "-pain-3");
                         }
 
                         projectilesToRemove.push_back(i);

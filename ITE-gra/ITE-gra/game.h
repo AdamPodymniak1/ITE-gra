@@ -40,8 +40,8 @@ private:
     bool waveActive = false;
     double nextWaveTime = 0;
     double waveDelay = 5.0;
-    std::vector<Vector2> skeletonSpawnPoints;
-    int skeletonsPerWave = 3;
+    std::vector<Vector2> enemySpawnPoints;
+    int enemiesPerWave = 3;
 
     bool gameOver = false;
 
@@ -102,6 +102,8 @@ private:
     GameTexture* machinegunTexture;
     GameTexture* rocketlauncherTexture;
     GameTexture* skeletonTexture;
+    GameTexture* wolfTexture;
+    GameTexture* demonTexture;
     GameTexture* ammoTexture;
     GameTexture* rocketammoTexture;
     GameTexture* bonesTexture;
