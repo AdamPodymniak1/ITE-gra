@@ -561,14 +561,14 @@ void Game::run() {
         case 1: weaponText = "Knife"; break;
         case 2: weaponText = "Pistol"; break;
         case 3: weaponText = "Machine Gun"; break;
-        case 5: weaponText = "Rocket Launcher"; break;
+        case 4: weaponText = "Rocket Launcher"; break;
         default: weaponText = "Unknown"; break;
         }
         std::string ammoText = "Ammo: ";
-        if (equippedWeapon == 1 || equippedWeapon == 4 || equippedWeapon == 6) {
+        if (equippedWeapon == 1) {
             ammoText += "INF";
         }
-        else if (equippedWeapon == 5) {
+        else if (equippedWeapon == 4) {
             ammoText += std::to_string(rocketammo);
         }
         else {
@@ -998,7 +998,7 @@ void Game::movePlayer() {
                     continue;
                 }
             }
-            ++it;
+            it++;
         }
 
     }
@@ -1019,7 +1019,7 @@ void Game::movePlayer() {
         setWeaponTexture(3);
     }
     if (keys["four"].active) {
-        equippedWeapon = 5;
+        equippedWeapon = 4;
         shootCooldown = 1.2;
         setWeaponTexture(5);
     }
@@ -1035,7 +1035,7 @@ void Game::handleShooting() {
             playSound("gunclick");
             return;
         }
-        if (equippedWeapon == 5 && rocketammo <= 0) {
+        if (equippedWeapon == 4 && rocketammo <= 0) {
             playSound("gunclick");
             return;
         }
@@ -1051,14 +1051,20 @@ void Game::handleShooting() {
             playSound("knife");
             projTexture = nullptr;
         }
-        else if (equippedWeapon == 5) {
+        else if (equippedWeapon == 4) {
             type = "rocket";
             playSound("rocketlaunch");
             rocketammo--;
             projTexture = rocketTexture;
         }
+        else if (equippedWeapon == 2) {
+            type = "pistolBullet";
+            playSound("shoot");
+            ammo--;
+            projTexture = bulletTexture;
+        }
         else {
-            type = "bullet";
+            type = "machineBullet";
             playSound("shoot");
             ammo--;
             projTexture = bulletTexture;
@@ -1114,7 +1120,10 @@ void Game::updateGameObjects() {
 
                     if (distanceSq < bulletHitboxRadius * bulletHitboxRadius) {
                         if (projectile.type == "rocket") {
-                            monster.health -= 100;
+                            monster.health -= 200;
+                        }
+                        else if (projectile.type == "pistolBullet") {
+                            monster.health -= 50;
                         }
                         else {
                             monster.health -= 25;
@@ -1244,7 +1253,7 @@ void Game::setWeapon(int id) {
         shootCooldown = 0.4;
         setWeaponTexture(3);
         break;
-    case 5:
+    case 4:
         shootCooldown = 1.2;
         setWeaponTexture(5);
         break;
