@@ -373,22 +373,7 @@ void Game::loadLevel(int levelIdx) {
             }
             case 5:
             {
-                Monster skeleton;
-                skeleton.id = "monster_" + std::to_string(monsterTotal);
-                skeleton.type = "skeleton";
-                skeleton.skin = "skeleton";
-                skeleton.audio = "skeleton";
-                skeleton.x = (double)j;
-                skeleton.y = (double)i;
-                skeleton.health = 100;
-                skeleton.isDead = false;
-                skeleton.width = 512;
-                skeleton.height = 512;
-                skeleton.damage = 1;
-                skeleton.attackCooldown = 1.0;
-                skeleton.texture = skeletonTexture;
-                monsters.push_back(skeleton);
-                monsterTotal++;
+                skeletonSpawnPoints.push_back(Vector2{ (float)j, (float)i });
                 break;
             }
             }
@@ -396,16 +381,69 @@ void Game::loadLevel(int levelIdx) {
     }
 }
 
+void Game::spawnWave()
+{
+    monsters.clear();
+    monsterDefeated = 0;
+    monsterTotal = 0;
+
+    int spawnCount = skeletonsPerWave + currentWave;
+
+    for (int i = 0; i < spawnCount && i < skeletonSpawnPoints.size(); i++) {
+        Monster skeleton;
+        skeleton.id = "monster_" + std::to_string(i);
+        skeleton.type = "skeleton";
+        skeleton.skin = "skeleton";
+        skeleton.audio = "skeleton";
+        skeleton.x = skeletonSpawnPoints[i].x;
+        skeleton.y = skeletonSpawnPoints[i].y;
+        skeleton.health = 100 + currentWave * 20;
+        skeleton.isDead = false;
+        skeleton.width = 512;
+        skeleton.height = 512;
+        skeleton.damage = 1 + currentWave / 2;
+        skeleton.attackCooldown = 1.0;
+        skeleton.texture = skeletonTexture;
+
+        monsters.push_back(skeleton);
+        monsterTotal++;
+    }
+
+    waveActive = true;
+}
+
+
 void Game::run() {
     loadLevel(0);
-
-    
 
     RenderTexture2D renderTex = LoadRenderTexture(projection.width, projection.height);
     Texture2D projectionTexture = LoadTextureFromImage(projection.buffer);
   
         while (!WindowShouldClose()) {
        
+            if (gameOver) {
+                BeginDrawing();
+                ClearBackground(BLACK);
+
+                DrawText(
+                    "GAME OVER",
+                    screen.width / 2 - MeasureText("GAME OVER", 60) / 2,
+                    screen.height / 2 - 30,
+                    60,
+                    RED
+                );
+
+                DrawText(
+                    "Press ESC to exit",
+                    screen.width / 2 - MeasureText("Press ESC to exit", 20) / 2,
+                    screen.height / 2 + 40,
+                    20,
+                    WHITE
+                );
+
+                EndDrawing();
+                continue;
+            }
 
         double currentTime = GetTime();
         render.lastUpdate = currentTime;
@@ -481,6 +519,27 @@ void Game::run() {
         else {
             ammoText += std::to_string(ammo);
         }
+
+        if (!gameOver) {
+            if (!waveActive) {
+                std::string nextWaveText = "NEXT WAVE " + std::to_string(currentWave);
+
+                int fontSize = 40;
+                int textWidth = MeasureText(nextWaveText.c_str(), fontSize);
+
+                DrawText(nextWaveText.c_str(), screen.width / 2 - textWidth / 2, screen.height / 2 - fontSize / 2, fontSize, RED);
+            }
+
+            if (waveActive) {
+                std::string waveText = "WAVE " + std::to_string(currentWave);
+
+                int fontSize = 20;
+                int textWidth = MeasureText(waveText.c_str(), fontSize);
+
+                DrawText(waveText.c_str(), screen.width - textWidth - 20, 20, fontSize, WHITE);
+            }
+        }
+
 
         DrawText(healthText.c_str(), 5 * screen.scale, 5 * screen.scale, 5 * screen.scale, WHITE);
         DrawText(("Weapon: " + weaponText).c_str(), 5 * screen.scale, 25 * screen.scale, 5 * screen.scale, WHITE);
@@ -943,6 +1002,17 @@ void Game::updateGameObjects() {
     int mapHeight = (int)map.size();
     int mapWidth = (int)map[0].size();
 
+    double timeNow = GetTime();
+
+    if (!waveActive && currentWave == 0) {
+        currentWave = 1;
+        nextWaveTime = timeNow + waveDelay;
+    }
+
+    if (!waveActive && timeNow >= nextWaveTime && !gameOver) {
+        spawnWave();
+    }
+
     std::vector<int> projectilesToRemove;
     for (int i = 0; i < (int)projectiles.size(); i++) {
         Projectile& projectile = projectiles[i];
@@ -1062,9 +1132,16 @@ void Game::updateGameObjects() {
 
                 if (player.health <= 0) {
                     playSound("death");
+                    gameOver = true;
                 }
             }
         }
+        if (waveActive && monsterDefeated >= monsterTotal) {
+            waveActive = false;
+            currentWave++;
+            nextWaveTime = GetTime() + waveDelay;
+        }
+
     }
 }
 

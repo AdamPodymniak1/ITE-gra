@@ -36,6 +36,14 @@ private:
     int monsterDefeated;
     int pickupTotal;
     int pickupCollected;
+    int currentWave = 0;
+    bool waveActive = false;
+    double nextWaveTime = 0;
+    double waveDelay = 5.0;
+    std::vector<Vector2> skeletonSpawnPoints;
+    int skeletonsPerWave = 3;
+
+    bool gameOver = false;
 
     struct {
         int width;
@@ -119,6 +127,7 @@ private:
     void setWeapon(int id);
     void itemPickup(int ycoords, int xcoords);
     void playSound(const std::string& id);
+    void spawnWave();
     
     
 public:
