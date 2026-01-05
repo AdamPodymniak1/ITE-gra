@@ -246,18 +246,18 @@ bool Game::loadAllTextures() {
 }
 
 bool Game::loadAllSounds() {
-    audioCache["shoot"] = LoadSound("Resources/Sounds/shoot.wav");
-    audioCache["knife"] = LoadSound("Resources/Sounds/knife.wav");
-    audioCache["rocketlaunch"] = LoadSound("Resources/Sounds/rocketlaunch.wav");
-    audioCache["explosion"] = LoadSound("Resources/Sounds/explosion.wav");
-    audioCache["gunclick"] = LoadSound("Resources/Sounds/gunclick.wav");
-    audioCache["pickup"] = LoadSound("Resources/Sounds/pickup.wav");
-    audioCache["injured"] = LoadSound("Resources/Sounds/injured.wav");
-    audioCache["death"] = LoadSound("Resources/Sounds/death.wav");
-    audioCache["skeleton-pain-1"] = LoadSound("Resources/Sounds/skeleton-pain-1.wav");
-    audioCache["skeleton-pain-2"] = LoadSound("Resources/Sounds/skeleton-pain-2.wav");
-    audioCache["skeleton-pain-3"] = LoadSound("Resources/Sounds/skeleton-pain-3.wav");
-    audioCache["skeleton-death"] = LoadSound("Resources/Sounds/skeleton-death.wav");
+    audioCache["shoot"] = LoadSound("Resources/Sounds/shoot.mp3");
+    audioCache["knife"] = LoadSound("Resources/Sounds/knife.mp3");
+    audioCache["rocketlaunch"] = LoadSound("Resources/Sounds/rocketlaunch.mp3");
+    audioCache["explosion"] = LoadSound("Resources/Sounds/explosion.mp3");
+    audioCache["gunclick"] = LoadSound("Resources/Sounds/gunclick.mp3");
+    audioCache["pickup"] = LoadSound("Resources/Sounds/pickup.mp3");
+    audioCache["injured"] = LoadSound("Resources/Sounds/injured.mp3");
+    audioCache["death"] = LoadSound("Resources/Sounds/death.mp3");
+    audioCache["skeleton-pain-1"] = LoadSound("Resources/Sounds/skeleton-pain-1.mp3");
+    audioCache["skeleton-pain-2"] = LoadSound("Resources/Sounds/skeleton-pain-2.mp3");
+    audioCache["skeleton-pain-3"] = LoadSound("Resources/Sounds/skeleton-pain-3.mp3");
+    audioCache["skeleton-death"] = LoadSound("Resources/Sounds/skeleton-death.mp3");
 
     return true;
 }
@@ -673,6 +673,8 @@ void Game::drawSpriteInWorld(const Sprite& sprite) {
 
 void Game::drawSpriteInWorld(const Monster& monster) {
     if (!monster.texture || monster.texture->texture.id == 0 || monster.isDead) return;
+
+    if (!isVisibleToPlayer(monster)) return;
 
     double relX = monster.x - player.x;
     double relY = monster.y - player.y;
