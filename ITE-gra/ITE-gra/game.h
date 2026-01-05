@@ -128,6 +128,7 @@ private:
     void itemPickup(int ycoords, int xcoords);
     void playSound(const std::string& id);
     void spawnWave();
+    void drawPickupInWorld(const Sprite& sprite);
     
     
 public:

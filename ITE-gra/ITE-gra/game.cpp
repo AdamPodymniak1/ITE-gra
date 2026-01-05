@@ -16,6 +16,7 @@
 #include <nlohmann/json.hpp>
 #include <vector>
 #include <fstream>
+#include <ctime>
 
 Settings settings;
 
@@ -34,6 +35,8 @@ knifeTexture(nullptr), gunTexture(nullptr), machinegunTexture(nullptr),
 rocketlauncherTexture(nullptr), skeletonTexture(nullptr),
 ammoTexture(nullptr), rocketammoTexture(nullptr), bonesTexture(nullptr),
 cloudTexture(nullptr) {
+
+    srand((unsigned int)time(nullptr));
 
     settings.loadAll();
 
@@ -401,7 +404,7 @@ void Game::spawnWave()
         skeleton.isDead = false;
         skeleton.width = 512;
         skeleton.height = 512;
-        skeleton.damage = 1 + currentWave / 2;
+        skeleton.damage = 5 + currentWave / 2;
         skeleton.attackCooldown = 1.0;
         skeleton.texture = skeletonTexture;
 
@@ -458,10 +461,6 @@ void Game::run() {
         clearScreen();
         rayCastingFunc();
 
-        for (size_t i = 0; i < sprites.size(); i++) {
-            drawSpriteInWorld(sprites[i]);
-        }
-
         for (size_t i = 0; i < projectiles.size(); i++) {
             drawBulletSprite(projectiles[i]);
         }
@@ -480,6 +479,10 @@ void Game::run() {
             Rectangle{ 0, 0, (float)projection.width, -(float)projection.height },
             Rectangle{ 0, 0, (float)screen.width, (float)screen.height },
             Vector2{ 0, 0 }, 0, WHITE);
+
+        for (size_t i = 0; i < sprites.size(); i++) {
+            drawSpriteInWorld(sprites[i]);
+        }
 
         for (size_t i = 0; i < monsters.size(); i++) {
             drawSpriteInWorld(monsters[i]);
@@ -691,10 +694,20 @@ void Game::drawSpriteInWorld(const Sprite& sprite) {
     double distance = sqrt(dx*dx + dy*dy);
     if (distance < 0.5) return;
 
-    double angle = atan2(dy, dx);
+    double angleToSprite = atan2(dy, dx);
+    double playerAngleRad = degreeToRadians(player.angle);
+
+    double angleDiff = angleToSprite - playerAngleRad;
+
+    while (angleDiff > PI) angleDiff -= 2.0 * PI;
+    while (angleDiff < -PI) angleDiff += 2.0 * PI;
+
+    double halfFovRad = degreeToRadians(player.halfFov);
+    if (fabs(angleDiff) > halfFovRad) return;
+
     double screenX =
-        (radiansToDegrees(angle) - (player.angle - player.halfFov)) *
-        projection.width / player.fov;
+        (angleDiff + halfFovRad) / (2.0 * halfFovRad) * projection.width;
+
 
     int size = (int)(projection.halfHeight / distance);
 
@@ -704,11 +717,11 @@ void Game::drawSpriteInWorld(const Sprite& sprite) {
         (float)sprite.texture->getHeight()
     };
 
-    Rectangle dst {
-        (float)(screenX - size / 2),
-        (float)(projection.halfHeight - size / 2),
-        (float)size,
-        (float)size
+    Rectangle dst{
+        (float)(screenX * screen.scale - (size * screen.scale) / 2),
+        (float)((projection.halfHeight - size / 2) * screen.scale),
+        (float)(size * screen.scale),
+        (float)(size * screen.scale)
     };
 
     DrawTexturePro(sprite.texture->texture, src, dst, {0,0}, 0, WHITE);
@@ -915,19 +928,27 @@ void Game::movePlayer() {
 
     if (playerMapY >= 0 && playerMapY < mapHeight &&
         playerMapX >= 0 && playerMapX < mapWidth) {
-        int tile = map[playerMapY][playerMapX];
-        if (tile == 8 || tile == 9 || tile == 10 || tile == 11 || tile == 13) {
-            map[playerMapY][playerMapX] = 0;
-            itemPickup(playerMapY, playerMapX);
-            pickupCollected++;
+        for (auto it = sprites.begin(); it != sprites.end(); ) {
+            double dx = it->x - player.x;
+            double dy = it->y - player.y;
 
-            if (tile == 8) {
-                ammo += 8;
+            if ((dx * dx + dy * dy) < 0.5 * 0.5) {
+                if (it->id == "ammo") {
+                    ammo += 8;
+                    playSound("pickup");
+                    it = sprites.erase(it);
+                    continue;
+                }
+                else if (it->id == "rocketammo") {
+                    rocketammo += 4;
+                    playSound("pickup");
+                    it = sprites.erase(it);
+                    continue;
+                }
             }
-            else if (tile == 13) {
-                rocketammo += 4;
-            }
+            ++it;
         }
+
     }
 
     if (keys["one"].active) {
@@ -1051,6 +1072,17 @@ void Game::updateGameObjects() {
                             monster.isDead = true;
                             monsterDefeated++;
                             playSound("skeleton-death");
+                            int roll = rand() % 4;
+                            if (roll == 0 || roll == 1) {
+                                Sprite ammoSprite("ammo", monster.x, monster.y, 100, 81);
+                                ammoSprite.texture = ammoTexture;
+                                sprites.push_back(ammoSprite);
+                            }
+                            else if (roll == 2) {
+                                Sprite rocketSprite("rocketammo", monster.x, monster.y, 35, 18);
+                                rocketSprite.texture = rocketammoTexture;
+                                sprites.push_back(rocketSprite);
+                            }
                         }
                         else {
                             int rnd = rand() % 3;
