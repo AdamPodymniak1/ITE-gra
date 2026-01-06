@@ -98,6 +98,15 @@ cloudTexture(nullptr), demonTexture(nullptr), wolfTexture(nullptr) {
     keys["upgrade"] = KeyState(KEY_TAB);
     keys["dash"] = KeyState(KEY_LEFT_SHIFT);
 
+    rayCasting.incrementAngle = player.fov / projection.width;
+}
+
+Game::~Game() {
+    cleanup();
+}
+
+void Game::loadFiles() {
+
     for (const auto& entry : std::filesystem::directory_iterator("Resources/Levels/"))
     {
         if (!entry.is_regular_file() && (entry.path().extension() != ".json")) {
@@ -122,11 +131,6 @@ cloudTexture(nullptr), demonTexture(nullptr), wolfTexture(nullptr) {
         levels.push_back(level);
     }
 
-    rayCasting.incrementAngle = player.fov / projection.width;
-}
-
-Game::~Game() {
-    cleanup();
 }
 
 int Game::menu() {
@@ -357,6 +361,8 @@ void Game::drawTexturedWall(int rayCount, int wallHeight, double rayX, double ra
 }
 
 void Game::showLevelsList() {
+    levels.clear();
+    loadFiles();
     while (!WindowShouldClose()) {
 
         Vector2 mouse = GetMousePosition();

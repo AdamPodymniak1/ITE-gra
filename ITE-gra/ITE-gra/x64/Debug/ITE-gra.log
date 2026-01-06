@@ -1,32 +1,32 @@
 ﻿  game.cpp
 C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(44,39): warning C4244: "=": konwersja z "float" do "int", możliwa utrata danych
 C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(45,40): warning C4244: "=": konwersja z "float" do "int", możliwa utrata danych
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(136,37): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(137,26): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(140,36): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(141,24): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(144,41): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(145,29): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(148,37): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(149,34): warning C4244: "=": konwersja z "double" do "float", możliwa utrata danych
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(379,70): warning C4244: "argument": konwersja z "float" do "int", możliwa utrata danych
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(379,55): warning C4244: "argument": konwersja z "float" do "int", możliwa utrata danych
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(457,16): warning C4267: "inicjowanie": konwersja z "size_t" do "int", możliwa utrata danych
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(545,21): warning C4305: "inicjowanie": obcięcie z "double" do "float"
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(551,30): warning C4838: konwersja z „int” do „float” wymaga konwersji zawężającej
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(551,30): warning C4244: "inicjowanie": konwersja z "int" do "float", możliwa utrata danych
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(551,45): warning C4838: konwersja z „int” do „float” wymaga konwersji zawężającej
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(551,45): warning C4244: "inicjowanie": konwersja z "int" do "float", możliwa utrata danych
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(552,32): warning C4838: konwersja z „int” do „float” wymaga konwersji zawężającej
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(552,32): warning C4244: "inicjowanie": konwersja z "int" do "float", możliwa utrata danych
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(552,47): warning C4838: konwersja z „int” do „float” wymaga konwersji zawężającej
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(552,47): warning C4244: "inicjowanie": konwersja z "int" do "float", możliwa utrata danych
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(553,26): warning C4838: konwersja z „int” do „float” wymaga konwersji zawężającej
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(553,26): warning C4244: "inicjowanie": konwersja z "int" do "float", możliwa utrata danych
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(553,40): warning C4838: konwersja z „int” do „float” wymaga konwersji zawężającej
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(553,40): warning C4244: "inicjowanie": konwersja z "int" do "float", możliwa utrata danych
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(604,26): warning C4305: "-=": obcięcie z "double" do "float"
-C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(608,1): warning C4715: "Game::pause”: niewszystkie ścieżki kodu zwracają wartość
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(140,37): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(141,26): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(144,36): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(145,24): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(148,41): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(149,29): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(152,37): warning C4244: "=": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(153,34): warning C4244: "=": konwersja z "double" do "float", możliwa utrata danych
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(385,70): warning C4244: "argument": konwersja z "float" do "int", możliwa utrata danych
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(385,55): warning C4244: "argument": konwersja z "float" do "int", możliwa utrata danych
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(463,16): warning C4267: "inicjowanie": konwersja z "size_t" do "int", możliwa utrata danych
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(551,21): warning C4305: "inicjowanie": obcięcie z "double" do "float"
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(557,30): warning C4838: konwersja z „int” do „float” wymaga konwersji zawężającej
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(557,30): warning C4244: "inicjowanie": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(557,45): warning C4838: konwersja z „int” do „float” wymaga konwersji zawężającej
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(557,45): warning C4244: "inicjowanie": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(558,32): warning C4838: konwersja z „int” do „float” wymaga konwersji zawężającej
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(558,32): warning C4244: "inicjowanie": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(558,47): warning C4838: konwersja z „int” do „float” wymaga konwersji zawężającej
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(558,47): warning C4244: "inicjowanie": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(559,26): warning C4838: konwersja z „int” do „float” wymaga konwersji zawężającej
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(559,26): warning C4244: "inicjowanie": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(559,40): warning C4838: konwersja z „int” do „float” wymaga konwersji zawężającej
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(559,40): warning C4244: "inicjowanie": konwersja z "int" do "float", możliwa utrata danych
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(610,26): warning C4305: "-=": obcięcie z "double" do "float"
+C:\Users\Admin\source\repos\ITE-gra\ITE-gra\ITE-gra\game.cpp(614,1): warning C4715: "Game::pause”: niewszystkie ścieżki kodu zwracają wartość
   ITE-gra.vcxproj -> C:\Users\Admin\source\repos\ITE-gra\ITE-gra\x64\Debug\ITE-gra.exe
   'pwsh.exe' is not recognized as an internal or external command,
   operable program or batch file.

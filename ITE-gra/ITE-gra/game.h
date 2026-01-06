@@ -148,6 +148,7 @@ public:
     Game();
     ~Game();
 
+    void loadFiles();
     bool initialize();
     int menu();
     void showLevelsList();
