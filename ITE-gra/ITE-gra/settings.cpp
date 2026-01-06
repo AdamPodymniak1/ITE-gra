@@ -284,7 +284,6 @@ void Settings::reload()
 		volume = jSet["volume"];
 		difficulty = jSet["difficulty"];
 		file.close();
-
 	}
 	else { std::cout << "Cannot open settings files" << std::endl; }
 	SetMasterVolume(volume);

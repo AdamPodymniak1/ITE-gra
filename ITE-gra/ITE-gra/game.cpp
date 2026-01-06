@@ -548,6 +548,7 @@ bool Game::pause() {
         if (settingsButton.isPressed(mousePos, isLPressed))
         {
             settings.open();
+            settings.reload();
         }
         if (exitButton.isPressed(mousePos, isLPressed))
         {
