@@ -17,6 +17,7 @@
 #include <vector>
 #include <fstream>
 #include <ctime>
+#include <filesystem>
 
 Settings settings;
 
@@ -97,18 +98,29 @@ cloudTexture(nullptr), demonTexture(nullptr), wolfTexture(nullptr) {
     keys["upgrade"] = KeyState(KEY_TAB);
     keys["dash"] = KeyState(KEY_LEFT_SHIFT);
 
-    std::ifstream file("Resources/Levels/level1.json");
-    if (!file.is_open()) {
-        std::cerr << "Nie mozna otworzyc pliku level1.json" << std::endl;
+    for (const auto& entry : std::filesystem::directory_iterator("Resources/Levels/"))
+    {
+        if (!entry.is_regular_file() && (entry.path().extension() != ".json")) {
+            continue;
+        }
+
+        std::ifstream file(entry.path());
+        if (!file.is_open())
+            continue;
+
+        json j;
+        file >> j;
+
+        if (!j.contains("data") || !j["data"].is_array()) {
+            continue;
+        }
+
+        Level level;
+        level.name = entry.path().stem().string();
+        level.map = j["data"];
+
+        levels.push_back(level);
     }
-
-    json j;
-    file >> j;
-
-    Level level1;
-    level1.name = "Default";
-    level1.map = j["data"];
-    levels.push_back(level1);
 
     rayCasting.incrementAngle = player.fov / projection.width;
 }
@@ -344,6 +356,33 @@ void Game::drawTexturedWall(int rayCount, int wallHeight, double rayX, double ra
     }
 }
 
+void Game::showLevelsList() {
+    while (!WindowShouldClose()) {
+
+        Vector2 mouse = GetMousePosition();
+        bool isLevelPicked = false;
+
+        BeginDrawing();
+
+        ClearBackground(RAYWHITE);
+        for (int m = 0; m < levels.size(); m++) {
+            Rectangle button = { (float)(GetScreenWidth() / 2) - 200, 180.0f + (m * 50), 400.0f, 40.0f };
+            bool hovered = CheckCollisionPointRec(mouse, button);
+            if (hovered && IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
+                selectedLevel = m;
+                DrawRectangleRec(button, DARKGRAY);
+                isLevelPicked = true;
+            }
+            else {
+                DrawRectangleRec(button, LIGHTGRAY);
+            }
+            DrawText(levels[m].name.c_str(), button.x + 10, button.y + 10, 24, BLACK);
+        }
+        DrawText("CHOOSE LEVEL", (GetScreenWidth() - MeasureText("CHOOSE LEVEL", 30)) / 2, 100, 30, BLACK);
+        EndDrawing();
+        if (isLevelPicked) break;
+    }
+}
 
 void Game::loadLevel(int levelIdx) {
     if (levelIdx < 0 || levelIdx >= levels.size()) return;
@@ -569,7 +608,7 @@ bool Game::pause() {
 }
 
 void Game::run() {
-    loadLevel(0);
+    loadLevel(selectedLevel);
 
     RenderTexture2D renderTex = LoadRenderTexture(projection.width, projection.height);
     Texture2D projectionTexture = LoadTextureFromImage(projection.buffer);

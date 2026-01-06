@@ -48,9 +48,9 @@ void Editor::open() {
 
             BeginDrawing();
             ClearBackground(RAYWHITE);
-            DrawText("EDYTOR MAP", (GetScreenWidth()-MeasureText("EDYTOR MAP",32))/2, 100, 32, DARKGRAY);
-            DrawText("1 - Wczytaj plik", (GetScreenWidth() - MeasureText("1 - Wczytaj plik", 24))/2, 220, 24, BLACK);
-            DrawText("2 - Nowy plik", (GetScreenWidth() - MeasureText("2 - Nowy plik", 24))/2, 260, 24, BLACK);
+            DrawText("MAP EDITOR", (GetScreenWidth()-MeasureText("MAP EDITOR",32))/2, 100, 32, DARKGRAY);
+            DrawText("1 - Load map", (GetScreenWidth() - MeasureText("1 - Load map", 24))/2, 220, 24, BLACK);
+            DrawText("2 - New map", (GetScreenWidth() - MeasureText("2 - New map", 24))/2, 260, 24, BLACK);
             DrawText("3 - Menu", (GetScreenWidth() - MeasureText("3 - Menu", 24))/2, 300, 24, BLACK);
             EndDrawing();
             continue;
@@ -71,7 +71,7 @@ void Editor::open() {
             if (IsKeyPressed(KEY_ENTER)) {
                 std::ifstream file(basePath + filenameInput + ".json");
                 if (!file.is_open()) {
-                    errorMessage = "Nie znaleziono pliku!";
+                    errorMessage = "This file doesn't exist!";
                 }
                 else {
                     file >> j;
@@ -86,8 +86,8 @@ void Editor::open() {
 
             BeginDrawing();
             ClearBackground(RAYWHITE);
-            DrawText("WCZYTAJ PLIK", (GetScreenWidth()-MeasureText("WCZYTAJ PLIK", 30))/2, 100, 30, DARKGRAY);
-            DrawText("Nazwa pliku:", (GetScreenWidth() - MeasureText("Nazwa pliku:", 22))/2, 180, 22, BLACK);
+            DrawText("LOAD FILE", (GetScreenWidth()-MeasureText("LOAD FILE", 30))/2, 100, 30, DARKGRAY);
+            DrawText("Name of file:", (GetScreenWidth() - MeasureText("Name of file:", 22))/2, 180, 22, BLACK);
             DrawRectangle((GetScreenWidth()/2) - 200, 220, 400, 40, LIGHTGRAY);
             DrawText(filenameInput.c_str(), (GetScreenWidth() / 2)-190, 230, 24, BLACK);
             DrawText(".json", (GetScreenWidth() / 2)+210, 230, 24, DARKGRAY);
@@ -95,7 +95,7 @@ void Editor::open() {
             if (!errorMessage.empty())
                 DrawText(errorMessage.c_str(), 300, 470, 22, RED);
 
-            DrawText("ENTER - wczytaj | CTRL - powrot", 10, GetScreenHeight()-30, 20, DARKGRAY);
+            DrawText("ENTER - load | CTRL - go back", 10, GetScreenHeight()-30, 20, DARKGRAY);
             EndDrawing();
             continue;
         }
@@ -143,17 +143,17 @@ void Editor::open() {
 
             BeginDrawing();
             ClearBackground(RAYWHITE);
-            DrawText("NOWA MAPA", (GetScreenWidth()-MeasureText("NOWA MAPA", 30))/2, 100, 30, DARKGRAY);
+            DrawText("NEW MAP", (GetScreenWidth()-MeasureText("NEW MAP", 30))/2, 100, 30, DARKGRAY);
 
-            DrawText("Nazwa pliku:", (GetScreenWidth()-MeasureText("Nazwa pliku:", 22))/2, 180, 22, BLACK);
+            DrawText("Name of file:", (GetScreenWidth()-MeasureText("Name of file:", 22))/2, 180, 22, BLACK);
             DrawRectangle((GetScreenWidth()/2)-200, 220, 400, 40, LIGHTGRAY);
             DrawText(filenameInput.c_str(), (GetScreenWidth()/2)-190, 230, 24, BLACK);
 
-            DrawText(TextFormat("Szerokosc: %d %s", newWidth, editSize ? "<" : ""), (GetScreenWidth()-MeasureText("Szerokosc: 10 <",24))/2, 430, 24, BLACK);
-            DrawText(TextFormat("Wysokosc: %d %s", newHeight, !editSize ? "<" : ""), (GetScreenWidth() - MeasureText("Wysokosc: 10 <", 24)) / 2, 470, 24, BLACK);
+            DrawText(TextFormat("Width: %d %s", newWidth, editSize ? "<" : ""), (GetScreenWidth()-MeasureText("Width: 10 <",24))/2, 430, 24, BLACK);
+            DrawText(TextFormat("Height: %d %s", newHeight, !editSize ? "<" : ""), (GetScreenWidth() - MeasureText("Height: 10 <", 24)) / 2, 470, 24, BLACK);
 
-            DrawText("GORA/DOL - zmien pole | LEWO/PRAWO - zmiana", 10, GetScreenHeight()-60, 18, DARKGRAY);
-            DrawText("ENTER - utworz | CTRL - powrot", 10, GetScreenHeight()-30, 18, DARKGRAY);
+            DrawText("UP/DOWN - Change option | LEFT/RIGHT - Change value", 10, GetScreenHeight()-60, 18, DARKGRAY);
+            DrawText("ENTER - create | CTRL - go back", 10, GetScreenHeight()-30, 18, DARKGRAY);
 
             EndDrawing();
             continue;
@@ -212,7 +212,7 @@ void Editor::open() {
             }
         }
 
-        DrawText("CTRL - powrot | ENTER - zapisz", 10, GetScreenHeight()-60, 20, DARKGRAY);
+        DrawText("ENTER - save | CTRL - go back", 10, GetScreenHeight()-60, 20, DARKGRAY);
         DrawText(TextFormat("Plik: %s.json", loadedFilename.c_str()), 10, GetScreenHeight()-30, 20, DARKGRAY);
 
         EndDrawing();

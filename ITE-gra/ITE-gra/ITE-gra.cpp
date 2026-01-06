@@ -20,6 +20,7 @@ int main() {
         switch (menuState)
         {
         case 1: //Start game 
+            game.showLevelsList();
             game.resetGame();
             game.run();
             break;

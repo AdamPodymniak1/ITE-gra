@@ -50,6 +50,7 @@ private:
     bool upgradeSpeedBought = false;
     bool upgradeDashBought = false;
     bool exit = false;
+    int selectedLevel = -1;
 
     bool gameOver = false;
 
@@ -149,6 +150,7 @@ public:
 
     bool initialize();
     int menu();
+    void showLevelsList();
     void loadLevel(int levelIdx);
     void run();
     void cleanup();
