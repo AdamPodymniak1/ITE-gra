@@ -140,6 +140,7 @@ private:
     void awardPoints(const Monster& monster);
     void openUpgradeMenu();
     void DrawCrossedText(const char* text, int x, int y, int fontSize, Color color);
+    bool pause();
     
 public:
     Game();

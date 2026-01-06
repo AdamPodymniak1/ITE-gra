@@ -32,6 +32,7 @@ public:
 	Vector2 scale;
 
 	void loadAll();
+	void reload();
 	void open();
 	bool checkForFile();
 };

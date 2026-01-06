@@ -27,6 +27,7 @@ int main() {
             break;
         case 3: //Settings
             settings.open();
+            settings.reload();
             break;
         case 4: // exit
             keepRunning = false;

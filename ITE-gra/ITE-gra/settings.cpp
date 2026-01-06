@@ -232,22 +232,20 @@ void Settings::resolutionChoose(int posX, int posY) {
 		Rectangle res800 = { posX, posY + dropdown.height, width, height };
 		Rectangle res1280 = { posX, res800.y + dropdown.height, width, height };
 		Rectangle res1366 = { posX, res1280.y + dropdown.height, width, height };
-		Rectangle res1920 = { posX, res1366.y + dropdown.height, width, height };
+		
 
 		DrawRectangleRec(res800, GRAY);
 		DrawRectangleRec(res1280, GRAY);
 		DrawRectangleRec(res1366, GRAY);
-		DrawRectangleRec(res1920, GRAY);
+	
 
 		DrawRectangleLinesEx(res800, 2 ,DARKGRAY);
 		DrawRectangleLinesEx(res1280, 2, DARKGRAY);
 		DrawRectangleLinesEx(res1366, 2, DARKGRAY);
-		DrawRectangleLinesEx(res1920, 2, DARKGRAY);
 
 		DrawText("800x600", res800.x + marginX, res800.y + marginY, font, RAYWHITE);
 		DrawText("1280x720", res1280.x + marginX, res1280.y + marginY, font, RAYWHITE);
 		DrawText("1366x768", res1366.x + marginX, res1366.y + marginY, font, RAYWHITE);
-		DrawText("1920x1080", res1920.x + marginX, res1920.y + marginY, font, RAYWHITE);
 
 		if (CheckCollisionPointRec(mousePos, res800) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
 		{
@@ -269,18 +267,30 @@ void Settings::resolutionChoose(int posX, int posY) {
 			resolution.y = 768;
 			isOpen = false;
 		}
-
-		if (CheckCollisionPointRec(mousePos, res1920) && IsMouseButtonPressed(MOUSE_LEFT_BUTTON))
-		{
-			resolution.x = 1920;
-			resolution.y = 1080;
-			isOpen = false;
-		}
 		
 	}
 
 
 }
+
+void Settings::reload()
+{
+	std::ifstream file(path);
+	if (file.is_open())
+	{
+		file >> jSet;
+
+		fov = jSet["fov"];
+		volume = jSet["volume"];
+		difficulty = jSet["difficulty"];
+		file.close();
+
+	}
+	else { std::cout << "Cannot open settings files" << std::endl; }
+	SetMasterVolume(volume);
+}
+
+
 
 
 
@@ -294,9 +304,13 @@ void Settings::open() {
 	bool exit = false;
 	float timeBlock = 0.2;
 
+	Music soundtrack = LoadMusicStream("Resources/Audio/SettingsMusic.mp3");
+	PlayMusicStream(soundtrack);
+
 
 	while (!WindowShouldClose() && exit != true)
 	{
+	UpdateMusicStream(soundtrack);
 	BeginDrawing();
 	ClearBackground(BLACK);
 	DrawText("FOV: ", 60*scale.x,103*scale.y,16*scale.y,WHITE);

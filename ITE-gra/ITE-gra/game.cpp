@@ -38,8 +38,7 @@ cloudTexture(nullptr), demonTexture(nullptr), wolfTexture(nullptr) {
     srand((unsigned int)time(nullptr));
 
     settings.loadAll();
-
-    SetMasterVolume(settings.volume);
+    
 
     screen.width = settings.resolution.x;
     screen.height = settings.resolution.y;
@@ -146,8 +145,13 @@ int Game::menu() {
     Vector2 mousePos;
     bool isLPress;
 
-        while (!WindowShouldClose()) {
+    Music soundtrack = LoadMusicStream("Resources/Audio/MenuMusic.mp3");
+    
+    PlayMusicStream(soundtrack);
+    soundtrack.looping = true;
 
+        while (!WindowShouldClose()) {
+        UpdateMusicStream(soundtrack);
         mousePos = GetMousePosition();
         isLPress = IsMouseButtonReleased(MOUSE_BUTTON_LEFT);
 
@@ -181,8 +185,13 @@ int Game::menu() {
 }
 
 bool Game::initialize() {
+
+
     InitWindow(screen.width, screen.height, "ITE gra");
+    SetExitKey(0);
     InitAudioDevice();
+
+    SetMasterVolume(settings.volume);
     SetTargetFPS(60);
 
     if (!IsWindowReady()) {
@@ -493,13 +502,99 @@ void Game::spawnWave()
     waveActive = true;
 }
 
+bool Game::pause() {
+    float timeBlock = 0.2;
+    bool isLPressed = false;
+    Vector2 mousePos;
+
+
+    int buttonsX = screen.halfWidth - (int)(screen.halfWidth * 0.2);
+    Vector2 returnVector = { buttonsX ,(int)(screen.height * 0.2) };
+    Vector2 settingsVector = { buttonsX ,(int)(screen.height * 0.45) };
+    Vector2 exitVect = { buttonsX,(int)(screen.height * 0.7) };
+    
+    Button returnButton = { "./Resources/Textures/ButtonReturn.png",
+        returnVector,settings.scale };
+    Button settingsButton = { "./Resources/Textures/ButtonSettings.png",
+        settingsVector,settings.scale };
+    Button exitButton = {"./Resources/Textures/ButtonExit.png" ,
+        exitVect ,settings.scale };
+
+
+
+    while (!WindowShouldClose())
+    {
+        mousePos = GetMousePosition();
+        isLPressed = IsMouseButtonPressed(MOUSE_LEFT_BUTTON);
+
+
+    BeginDrawing();
+    ClearBackground(BLACK);
+    returnButton.Draw();
+    settingsButton.Draw();
+    exitButton.Draw();
+    
+    
+
+    if (timeBlock <= 0)
+    {
+        
+        
+        
+        if (returnButton.isPressed(mousePos, isLPressed))
+        {   
+            return false;
+        }
+        if (settingsButton.isPressed(mousePos, isLPressed))
+        {
+            settings.open();
+        }
+        if (exitButton.isPressed(mousePos, isLPressed))
+        {
+            return true;
+        }
+
+
+        if (IsKeyDown(KEY_ESCAPE))
+        {
+            return false;
+        }
+    }
+    else {
+        timeBlock -= 1.0 / 60.0;
+    }
+    EndDrawing();
+    }
+}
+
 void Game::run() {
     loadLevel(0);
 
     RenderTexture2D renderTex = LoadRenderTexture(projection.width, projection.height);
     Texture2D projectionTexture = LoadTextureFromImage(projection.buffer);
+
+    settings.reload();
+    player.fov = settings.fov;
+
+    switch (settings.difficulty)
+    {
+    case 0:
+        player.health = 200;
+        player.maxHealth = 200;
+        break;
+    case 1:
+        player.health = 100;
+        player.maxHealth = 100;
+        break;
+    case 2:
+        player.health = 50;
+        player.maxHealth = 50;
+        break;
+    }
+
+    bool exit = false;
   
-        while (!WindowShouldClose()) {
+        while (!WindowShouldClose()&&!exit) {
        
             if (gameOver) {
                 BeginDrawing();
@@ -522,8 +617,20 @@ void Game::run() {
                 );
 
                 EndDrawing();
+
+                if (IsKeyPressed(KEY_ESCAPE))
+                {
+                    exit = true;
+                }
+
                 continue;
             }
+
+            if (IsKeyPressed(KEY_ESCAPE))
+            {
+                exit =  Game::pause();
+            }
+
 
         double currentTime = GetTime();
         render.lastUpdate = currentTime;
