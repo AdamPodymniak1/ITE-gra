@@ -49,6 +49,7 @@ private:
     bool upgradeRocketBought = false;
     bool upgradeSpeedBought = false;
     bool upgradeDashBought = false;
+    bool exit = false;
 
     bool gameOver = false;
 
@@ -151,6 +152,7 @@ public:
     void loadLevel(int levelIdx);
     void run();
     void cleanup();
+    void resetGame();
 };
 
 #endif

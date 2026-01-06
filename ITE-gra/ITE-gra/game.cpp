@@ -592,8 +592,6 @@ void Game::run() {
         player.maxHealth = 50;
         break;
     }
-
-    bool exit = false;
   
         while (!WindowShouldClose()&&!exit) {
        
@@ -1573,4 +1571,52 @@ void Game::DrawCrossedText(const char* text, int x, int y, int fontSize, Color c
     DrawText(text, x, y, fontSize, color);
     int width = MeasureText(text, fontSize);
     DrawLine(x, y + fontSize / 2, x + width, y + fontSize / 2, RED);
+}
+
+void Game::resetGame()
+{
+    gameOver = false;
+    exit = false;
+
+    switch (settings.difficulty)
+    {
+    case 0:
+        player.health = 200;
+        player.maxHealth = 200;
+        break;
+    case 1:
+        player.health = 100;
+        player.maxHealth = 100;
+        break;
+    case 2:
+        player.health = 50;
+        player.maxHealth = 50;
+        break;
+    }
+
+    player.x = 2;
+    player.y = 2;
+    player.angle = 0;
+
+    ammo = 100;
+    rocketammo = 10;
+    equippedWeapon = 1;
+    setWeapon(1);
+
+    currentWave = 0;
+    waveActive = false;
+    monsterTotal = 0;
+    monsterDefeated = 0;
+
+    points = 0;
+    rocketUnlocked = false;
+    dashUnlocked = false;
+    upgradeRocketBought = false;
+    upgradeSpeedBought = false;
+    upgradeDashBought = false;
+
+    monsters.clear();
+    projectiles.clear();
+    sprites.clear();
+    enemySpawnPoints.clear();
 }

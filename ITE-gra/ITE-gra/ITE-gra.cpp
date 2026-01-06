@@ -20,6 +20,7 @@ int main() {
         switch (menuState)
         {
         case 1: //Start game 
+            game.resetGame();
             game.run();
             break;
         case 2: // Map editor
